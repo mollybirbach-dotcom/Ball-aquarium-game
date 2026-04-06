@@ -1,40 +1,63 @@
+let myBall;
 
 function setup() {
-    createCanvas(windowWidth, windowHeight);
-    background(200);
-    fill("green");
-    stroke("yellow");
-    b1 = new Ball();
+  createCanvas(windowWidth-100, windowHeight-100);
+  myBall = new Ball(width / 2, height / 2, 40);
 }
 
 function draw() {
-    background(200);
-    b1.update();
-}
+  background(30);
 
-function keyPressed() {
-    if (key === 'i') {
-        b1.y -= 10;
-    }
-    if (key === 'j') {
-        b1.x -= 10;
-    }
-    if (key === 'k') {
-        b1.y += 10;
-    }
-    if (key === 'l') {
-        b1.x += 10;
-    }
+  myBall.update();   // Calculate physics
+  myBall.checkKeys(); // Check for keyboard input
+  myBall.display();    // Draw the ball
 }
 
 class Ball {
-    constructor(){
-        this.x = 100;
-        this.y = 100;
-    }
-    update(){
-        circle(this.x, this.y, 25);
-    }
+  constructor(x, y, r) {
+    this.pos = createVector(x, y);
+    this.vel = createVector(0, 0);
+    this.acc = createVector(0, 0);
+    this.r = r;
+    this.topSpeed = 6;
+    this.friction = 0.96; 
+  }
+
+  // Method to check keyboard input and apply forces
+  checkKeys() {
+    let forceMagnitude = 0.4;
+    
+    if (keyIsDown(LEFT_ARROW))  this.applyForce(createVector(-forceMagnitude, 0));
+    if (keyIsDown(RIGHT_ARROW)) this.applyForce(createVector(forceMagnitude, 0));
+    if (keyIsDown(UP_ARROW))    this.applyForce(createVector(0, -forceMagnitude));
+    if (keyIsDown(DOWN_ARROW))  this.applyForce(createVector(0, forceMagnitude));
+  }
+
+  // The "Force" pattern: Force adds to Acceleration
+  applyForce(force) {
+    this.acc.add(force);
+  }
+
+  update() {
+    // 1. Acceleration changes Velocity
+    this.vel.add(this.acc);
+    
+    // 2. Limit the speed so it doesn't go infinite
+    this.vel.limit(this.topSpeed);
+    
+    // 3. Velocity changes Position
+    this.pos.add(this.vel);
+    
+    // 4. Apply friction (velocity decay)
+    this.vel.mult(this.friction);
+    
+    // 5. Reset acceleration for the next frame
+    this.acc.mult(0);
+  }
+
+  display() {
+    fill(255, 150, 0);
+    noStroke();
+    ellipse(this.pos.x, this.pos.y, this.r);
+  }
 }
-
-
