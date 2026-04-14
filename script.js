@@ -1,28 +1,53 @@
 //preview: python -m http.server
 
-let myBall;
+let ballMin = 10
+let ballMax = 100
+
+let myBalls = [];
 
 function setup() {
   createCanvas(windowWidth-100, windowHeight-100);
   background(30);
-  myBall = new Ball(width / 2, height / 2, 40);
+  for (let i = 0; i<50; i++){
+    let radius = random(ballMin,ballMax)
+    myBalls.push(new Ball(random(radius, width-radius), random(radius,height- radius), radius));
+  }
 }
 
 function draw() {
   background(30);
-  myBall.update();   // Calculate physics
-  myBall.checkKeys(); // Check for keyboard input
-  myBall.display();    // Draw the ball
+  for (let i = 0; i < myBalls.length; i++) {
+    myBalls[i].update();     // Calculate physics   
+    myBalls[i].checkEdges(); // Prevent ball from going off screen
+    myBalls[i].checkKeys();  // Check for keyboard input
+    myBalls[i].display();    // Draw the ball
+  }
 }
 
 class Ball {
-  constructor(x, y, r) {
+  constructor(x, y, r,) {
     this.pos = createVector(x, y);
-    this.vel = createVector(0, 0);
-    this.acc = createVector(0, 0);
-    this.r = r;
-    this.topSpeed = 60;
-    this.friction = 0.99; 
+    this.vel = createVector(random(0), random(15));
+    this.acc = createVector (random(0), random(100));
+    this.radius = r;
+    this.topSpeed = 6;
+    this.friction = 0.96; 
+    this.red = random(255);
+    this.green = random(255)
+    this.blue = random(255);
+   
+  }
+  checkEdges() {
+    if(this.pos.x>width-this.radius){
+      this.vel.x *= -1;
+    } else if(this.pos.x < 0 + this.radius){
+      this.vel.x *= -1;
+    }
+    if(this.pos.y>height-this.radius){
+      this.vel.y *= -1;
+    }else if(this.pos.y < 0 + this.radius){
+      this.vel.y *= -1;
+    }
   }
 
   // Method to check keyboard input and apply forces
@@ -58,8 +83,8 @@ class Ball {
   }
 
   display() {
-    fill(255, 150, 0);
+    fill(this.red, this.green, this.blue);
     noStroke();
-    ellipse(this.pos.x, this.pos.y, this.r);
+    ellipse(this.pos.x, this.pos.y, this.radius);
   }
 }
